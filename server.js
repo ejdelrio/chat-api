@@ -1,19 +1,25 @@
-'use sctict';
+'use strict';
 
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
-const debug = require('debug')('chat: server.js');
-require('dotenv').config();
-console.log(process.env);
-
-const app = express();
+const mongoose = require('mongoose');
+const debug = require('debug')(`${process.env.APP_NAME}: Server`);
+console.log(process.env.APP_NAME);
 const PORT = process.env.PORT || 3000;
+const app = express();
+
+const errorMiddleware = require('./lib/error.js');
+const userRouter = require('./router/user-router.js');
+
+mongoose.connect(process.env.MONGODB_URI);
 
 app.use(morgan('dev'));
 app.use(cors());
-
+app.use(userRouter);
+app.use(errorMiddleware);
 
 app.listen(PORT, () => {
-  debug(`SERVER ACTIVE ON PORT: ${PORT}`);
+  debug(`Server active on port : ${PORT}`);
 });
