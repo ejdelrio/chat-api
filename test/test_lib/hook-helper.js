@@ -3,6 +3,7 @@
 const templates = require('./template.js');
 
 const User = require('../../model/user.js');
+const Profile = require('../../model/profile.js');
 
 let helper = module.exports = {};
 
@@ -17,7 +18,10 @@ helper.createUser = templateName => {
 
   return new Promise((resolve, reject) => {
     let testUser = new User(templates[templateName]);
-    testUser.encryptPassWord(testUser.passWord)
+    let testProfile = new Profile(templates[templateName]);
+    testProfile.userID = testUser._id;
+    testProfile.save()
+    .then(() => testUser.encryptPassWord(testUser.passWord))
     .then(user => {
       helper.users[templateName] = user;
       return user.signToken();
@@ -44,6 +48,7 @@ helper.createModel = (modelName, modelSchema, profileName) => {
 helper.clearDB = () => {
   return Promise.all([
     User.remove({}),
+    Profile.remove({})
   ])
   .then(() => {
     helper.users = {};

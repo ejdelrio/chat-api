@@ -6,7 +6,7 @@ const Schema = mongoose.Schema;
 
 const profileSchema = new Schema({
   userName: {type: String, required: true, unique: true},
-  userID: {type: Schema.Types.ObjectID, required: true, unique: true},
+  userID: {type: Schema.Types.ObjectId, required: true, unique: true},
 });
 
-const Profile = module.export = mongoose.model('profile', profileSchema);
+const Profile = module.exports = mongoose.model('profile', profileSchema);

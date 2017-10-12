@@ -6,6 +6,7 @@ const createError = require('http-errors');
 const jsonParser = require('body-parser').json();
 
 const User = require('../model/user.js');
+const Profile = require('../model/profile.js');
 const basicAuth = require('../lib/basic.js');
 
 const userRouter = module.exports = new Router();
@@ -20,7 +21,11 @@ userRouter.post('/api/signup', jsonParser, function(req, res, next) {
   delete req.body.passWord;
 
   let newUser = new User(req.body);
-  newUser.encryptPassWord(passWord)
+  let newProfile = new Profile(req.body);
+  newProfile.userID = newUser._id;
+
+  newProfile.save()
+  .then(() => newUser.encryptPassWord(passWord))
   .then(user => user.signToken())
   .then(token => {
     res.json(token);

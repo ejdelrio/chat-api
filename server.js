@@ -6,7 +6,6 @@ const cors = require('cors');
 const morgan = require('morgan');
 const mongoose = require('mongoose');
 const debug = require('debug')(`${process.env.APP_NAME}: Server`);
-console.log(process.env.APP_NAME);
 const PORT = process.env.PORT || 3000;
 const app = express();
 
