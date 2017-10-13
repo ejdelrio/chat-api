@@ -16,6 +16,7 @@ userRouter.post('/api/signup', jsonParser, function(req, res, next) {
 
   if(!req.body.userName) return next(createError(400, 'Username required'));
   if(!req.body.passWord) return next(createError(400, 'Password required'));
+  if(!req.body.email) return next(createError(400, 'Email required'));
 
   let passWord = req.body.passWord;
   delete req.body.passWord;
@@ -30,7 +31,11 @@ userRouter.post('/api/signup', jsonParser, function(req, res, next) {
   .then(token => {
     res.json(token);
   })
-  .catch(err => next(createError(400, err.message)));
+  .catch(err => {
+    let mongoError = err.message.split(':')[0];
+    if(mongoError === 'E11000 duplicate key error collection') err.message = 'Username or email already in use';
+    next(createError(400, err.message));
+  });
 
 });
 
