@@ -26,7 +26,7 @@ profileRouter.get('/api/profile-query/:userName', bearerAuth, function(req, res,
   Profile.find()
   .where('userName').ne(req.user.userName)
   .or({userName: regexp})
-  .limit(100)
+  .limit(30)
   .then(profiles => res.json(profiles))
   .catch(err => next(createError(400, err)));
 });
