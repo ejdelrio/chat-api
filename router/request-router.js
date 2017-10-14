@@ -40,10 +40,11 @@ module.exports = socketio => {
     .catch(err => next(createError(400, err)));
   });
 
+
   requestRouter.put('/api/friendRequest/reject/:id', jsonParser, bearerAuth, function(req, res, next) {
     debug('PUT /api/friendRequest/reject');
 
-    Request.findByIdAndUpdate(req.params.id, {status: 'rejected'}, {new: true})
+    Request.findByIdAndUpdate(req.params._id, {status: 'rejected'}, {new: true})
     .then(request => {
       socketio.sockets.emit(`${request._id}-rejectRequest`, request);
       res.send(request);
@@ -51,9 +52,29 @@ module.exports = socketio => {
     .catch(err => next(createError(400, err)));
   });
 
-  requestRouter.put('/api/friendRequest/accept/:id', jsonParser, bearerAuth, function(req, res, next) {
+
+  requestRouter.put('/api/friendRequest/accept/:id', jsonParser, bearerAuth, profileFetch, function(req, res, next) {
     debug('PUT /api/friendRequest/accept');
+
+    var updatedRequest;
+
+    Request.findByIdAndUpdate(req.params._id, {status: 'accepted'}, {new: true})
+    .then(request => updatedRequest = request)
+    .then(() => req.profile.contacts.push(updatedRequest.fromID))
+    .then(() => req.profile.save())
+    .then(() => Profile.findByIdAndUpdate(
+      updatedRequest.fromID,
+      {$push: {'contacts': updatedRequest.toID}},
+      {new: true}
+    ))
     
+    .then(profile => {
+      socketio.sockets.emit(`${updatedRequest.fromID}-newContact`, profile);
+      socketio.sockets.emit(`${updatedRequest.toID}-newContact`, req.profile);
+      socketio.sockets.emit(`${updatedRequest._id}-acceptRequest`, updatedRequest);
+      res.json(updatedRequest);
+    })
+    .catch(err => next(createError(400, err)));
   });
 
 

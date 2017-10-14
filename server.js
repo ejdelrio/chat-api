@@ -27,8 +27,8 @@ app.use(morgan('dev'));
 app.use(cors());
 app.use(userRouter);
 app.use(profileRouter);
-app.use(errorMiddleware);
 app.use(requestRouter(webSocket));
+app.use(errorMiddleware);
 
 server.listen(PORT, () => {
   debug(`Server active on port : ${PORT}`);
