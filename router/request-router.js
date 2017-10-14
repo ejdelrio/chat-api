@@ -8,13 +8,14 @@ const createError = require('http-errors');
 const profileFetch = require('../lib/profile-fetch.js');
 const bearerAuth = require('../lib/bearer.js');
 const Request = require('../model/request.js');
+const Profile = require('../model/profile.js');
 
 module.exports = socketio => {
   let requestRouter = new Router();
 
   requestRouter.post('/api/friendrequest', jsonParser, bearerAuth, profileFetch, function(req, res, next) {
     debug('POST /api/friendrequest');
-    let {_id, userName} = req.body;
+    let {userName, _id} = req.body;
     let {profile} = req;
 
     let friendRequest = new Request({
@@ -24,12 +25,35 @@ module.exports = socketio => {
       toID: _id
     });
 
-    friendRequest.save()
+    profile.requests.push(friendRequest._id);
+    Profile.findByIdAndUpdate(
+      _id,
+      {$push: {'requests': friendRequest._id}},
+      {new: true}
+    )
+    .then(() => profile.save())
+    .then(() => friendRequest.save())
+    .then(() => {
+      socketio.sockets.emit(`${userName}-newRequest`, friendRequest);
+      res.send(friendRequest);
+    })
+    .catch(err => next(createError(400, err)));
+  });
+
+  requestRouter.put('/api/friendRequest/reject/:id', jsonParser, bearerAuth, function(req, res, next) {
+    debug('PUT /api/friendRequest/reject');
+
+    Request.findByIdAndUpdate(req.params.id, {status: 'rejected'}, {new: true})
     .then(request => {
-      socketio.broadcast(`${userName}-newRequest`, request);
+      socketio.sockets.emit(`${request._id}-rejectRequest`, request);
       res.send(request);
     })
     .catch(err => next(createError(400, err)));
+  });
+
+  requestRouter.put('/api/friendRequest/accept/:id', jsonParser, bearerAuth, function(req, res, next) {
+    debug('PUT /api/friendRequest/accept');
+    
   });
 
 
