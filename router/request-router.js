@@ -67,17 +67,15 @@ module.exports = socketio => {
       {$push: {'contacts': updatedRequest.toID}},
       {new: true}
     ))
-    
+
     .then(profile => {
-      socketio.sockets.emit(`${updatedRequest.fromID}-newContact`, profile);
-      socketio.sockets.emit(`${updatedRequest.toID}-newContact`, req.profile);
+      socketio.sockets.emit(`${updatedRequest.toID}-newContact`, profile);
+      socketio.sockets.emit(`${updatedRequest.fromID}-newContact`, req.profile);
       socketio.sockets.emit(`${updatedRequest._id}-acceptRequest`, updatedRequest);
       res.json(updatedRequest);
     })
     .catch(err => next(createError(400, err)));
   });
-
-
 
   return requestRouter;
 };
