@@ -13,42 +13,76 @@ const Profile = require('../model/profile.js');
 module.exports = socketio => {
   let requestRouter = new Router();
 
-  requestRouter.post('/api/friendrequest', jsonParser, bearerAuth, profileFetch, function(req, res, next) {
+  requestRouter.post('/api/friendrequest', jsonParser, bearerAuth, function(req, res, next) {
     debug('POST /api/friendrequest');
-    let {userName, _id} = req.body;
-    let {profile} = req;
+    let {userName} = req.body;
 
     let friendRequest = new Request({
-      from: profile.userName,
+      from: req.user.userName,
       to: userName,
-      fromID: profile._id,
-      toID: _id
     });
 
-    profile.requests.push(friendRequest._id);
-    Profile.findByIdAndUpdate(
-      _id,
-      {$push: {'requests': friendRequest._id}},
-      {new: true}
-    )
-    .then(() => profile.save())
-    .then(() => friendRequest.save())
+    Promise.all([
+      Profile.findOneAndUpdate(
+        {userName},
+        {$push: {'requests.received.pending': friendRequest._id}},
+        {new: true}
+      ),
+      Profile.findOneAndUpdate(
+        {userName: req.user.userName},
+        {$push: {'requests.sent.pending': friendRequest._id}},
+        {new: true}
+      ),
+      friendRequest.save()
+    ])
+
     .then(() => {
       socketio.sockets.emit(`${userName}-newRequest`, friendRequest);
       res.send(friendRequest);
     })
+
     .catch(err => next(createError(400, err)));
   });
 
 
-  requestRouter.put('/api/friendRequest/reject/:id', jsonParser, bearerAuth, function(req, res, next) {
+  requestRouter.put('/api/friendRequest/reject/', jsonParser, bearerAuth, function(req, res, next) {
     debug('PUT /api/friendRequest/reject');
+    let {from, to, _id} = req.body;
 
-    Request.findByIdAndUpdate(req.params._id, {status: 'rejected'}, {new: true})
+    Promise.all([
+      Profile.findOneAndUpdate(
+        {userName: from},
+        {
+          $push: {'requests.sent.rejected': _id},
+          $pull: {'requests.sent.pending': {_id}}
+        },
+        {
+          new: true,
+          safe: true
+        }
+      ),
+      Profile.findOneAndUpdate(
+        {userName: to},
+        {
+          $push: {'requests.received.rejected': _id},
+          $pull: {'requests.received.pending': {_id}}
+        },
+        {
+          new: true,
+          safe: true
+        }
+      )
+    ])
+
+    .then(() => {
+      return Request.findByIdAndUpdate(_id, {status: 'rejected'}, {new: true});
+    })
+
     .then(request => {
-      socketio.sockets.emit(`${request._id}-rejectRequest`, request);
+      socketio.sockets.emit(`${request._id}-updateRequest`, request);
       res.send(request);
     })
+
     .catch(err => next(createError(400, err)));
   });
 

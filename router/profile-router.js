@@ -13,6 +13,7 @@ const profileRouter = module.exports = new Router();
 
 profileRouter.get('/api/profile', bearerAuth, profileFetch, function(req, res, next) {
   debug('GET /api/profile');
+  console.log(req.profile);
 
   res.json(req.profile);
   next();
