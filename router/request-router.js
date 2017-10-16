@@ -15,7 +15,7 @@ module.exports = socketio => {
 
   requestRouter.post('/api/friendrequest', jsonParser, bearerAuth, profileFetch, function(req, res, next) {
     debug('POST /api/friendrequest');
-    let {userName} = req.body;
+    let {userName, _id} = req.body;
 
     let friendRequest = new Request({
       from: req.user.userName,
@@ -89,12 +89,13 @@ module.exports = socketio => {
   });
 
 
-  requestRouter.put('/api/friendRequest/accept/', jsonParser, bearerAuth, profileFetch, function(req, res, next) {
+  requestRouter.put('/api/friendrequest/accept/', jsonParser, bearerAuth, profileFetch, function(req, res, next) {
     debug('PUT /api/friendRequest/accept');
 
-    var updatedRequest;
+    let {from, to, fromID, toID, _id} = req.body;
+    let updatedRequest;
 
-    Request.findByIdAndUpdate(req.params._id, {status: 'accepted'}, {new: true})
+    Request.findByIdAndUpdate(req.body._id, {status: 'accepted'}, {new: true})
     .then(request => updatedRequest = request)
     .then(() =>
       Profile.findOneAndUpdate(
@@ -102,7 +103,7 @@ module.exports = socketio => {
         {
           $push: {
             'requests.sent.accepted': _id,
-            'contacts': req.body.toID
+            'contacts': toID
           },
           $pull: {'requests.sent.pending': _id}
         },
@@ -118,7 +119,7 @@ module.exports = socketio => {
         {
           $push: {
             'requests.received.accepted': _id,
-            'contacts': req.body.fromID
+            'contacts': fromID
           },
           $pull: {'requests.received.pending': _id}
         },
@@ -129,9 +130,9 @@ module.exports = socketio => {
       )
     })
     .then(profile => {
-      socketio.sockets.emit(`${updatedRequest.toID}-newContact`, profile);
-      socketio.sockets.emit(`${updatedRequest.fromID}-newContact`, req.profile);
-      socketio.sockets.emit(`${updatedRequest._id}-acceptRequest`, updatedRequest);
+      socketio.sockets.emit(`${updatedRequest.to}-newContact`, profile);
+      socketio.sockets.emit(`${updatedRequest.from}-newContact`, req.profile);
+      socketio.sockets.emit(`${updatedRequest._id}-updateRequest`, updatedRequest);
       res.json(updatedRequest);
     })
     .catch(err => next(createError(400, err)));
