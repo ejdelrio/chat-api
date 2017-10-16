@@ -46,7 +46,6 @@ module.exports = socketio => {
     .catch(err => next(createError(400, err)));
   });
 
-
   requestRouter.put('/api/friendRequest/reject/', jsonParser, bearerAuth, function(req, res, next) {
     debug('PUT /api/friendRequest/reject');
     let {from, to, _id} = req.body;
@@ -93,7 +92,7 @@ module.exports = socketio => {
     debug('PUT /api/friendRequest/accept');
 
     let {from, to, fromID, toID, _id} = req.body;
-    let updatedRequest;
+    let updatedRequest, myProfile;
 
     Request.findByIdAndUpdate(req.body._id, {status: 'accepted'}, {new: true})
     .then(request => updatedRequest = request)
@@ -113,8 +112,10 @@ module.exports = socketio => {
         }
       )
     )
-    .then(() => {
-      return Profile.findOneAndUpdate (
+
+    .then(profile => myProfile = profile)
+    .then(() =>
+      Profile.findOneAndUpdate (
         {userName: to},
         {
           $push: {
@@ -128,12 +129,15 @@ module.exports = socketio => {
           protected: true
         }
       )
-    })
+    )
+
     .then(profile => {
+
       socketio.sockets.emit(`${updatedRequest.to}-newContact`, profile);
-      socketio.sockets.emit(`${updatedRequest.from}-newContact`, req.profile);
+      socketio.sockets.emit(`${updatedRequest.from}-newContact`, myProfile);
       socketio.sockets.emit(`${updatedRequest._id}-updateRequest`, updatedRequest);
       res.json(updatedRequest);
+
     })
     .catch(err => next(createError(400, err)));
   });
