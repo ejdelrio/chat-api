@@ -13,13 +13,15 @@ const Profile = require('../model/profile.js');
 module.exports = socketio => {
   let requestRouter = new Router();
 
-  requestRouter.post('/api/friendrequest', jsonParser, bearerAuth, function(req, res, next) {
+  requestRouter.post('/api/friendrequest', jsonParser, bearerAuth, profileFetch, function(req, res, next) {
     debug('POST /api/friendrequest');
     let {userName} = req.body;
 
     let friendRequest = new Request({
       from: req.user.userName,
       to: userName,
+      toID: _id,
+      fromID: req.profile._id
     });
 
     Promise.all([
@@ -54,22 +56,22 @@ module.exports = socketio => {
         {userName: from},
         {
           $push: {'requests.sent.rejected': _id},
-          $pull: {'requests.sent.pending': {_id}}
+          $pull: {'requests.sent.pending': _id}
         },
         {
           new: true,
-          safe: true
+          protected: true
         }
       ),
       Profile.findOneAndUpdate(
         {userName: to},
         {
           $push: {'requests.received.rejected': _id},
-          $pull: {'requests.received.pending': {_id}}
+          $pull: {'requests.received.pending': _id}
         },
         {
           new: true,
-          safe: true
+          protected: true
         }
       )
     ])
@@ -87,21 +89,45 @@ module.exports = socketio => {
   });
 
 
-  requestRouter.put('/api/friendRequest/accept/:id', jsonParser, bearerAuth, profileFetch, function(req, res, next) {
+  requestRouter.put('/api/friendRequest/accept/', jsonParser, bearerAuth, profileFetch, function(req, res, next) {
     debug('PUT /api/friendRequest/accept');
 
     var updatedRequest;
 
     Request.findByIdAndUpdate(req.params._id, {status: 'accepted'}, {new: true})
     .then(request => updatedRequest = request)
-    .then(() => req.profile.contacts.push(updatedRequest.fromID))
-    .then(() => req.profile.save())
-    .then(() => Profile.findByIdAndUpdate(
-      updatedRequest.fromID,
-      {$push: {'contacts': updatedRequest.toID}},
-      {new: true}
-    ))
-
+    .then(() =>
+      Profile.findOneAndUpdate(
+        {userName: from},
+        {
+          $push: {
+            'requests.sent.accepted': _id,
+            'contacts': req.body.toID
+          },
+          $pull: {'requests.sent.pending': _id}
+        },
+        {
+          new: true,
+          protected: true
+        }
+      )
+    )
+    .then(() => {
+      return Profile.findOneAndUpdate (
+        {userName: to},
+        {
+          $push: {
+            'requests.received.accepted': _id,
+            'contacts': req.body.fromID
+          },
+          $pull: {'requests.received.pending': _id}
+        },
+        {
+          new: true,
+          protected: true
+        }
+      )
+    })
     .then(profile => {
       socketio.sockets.emit(`${updatedRequest.toID}-newContact`, profile);
       socketio.sockets.emit(`${updatedRequest.fromID}-newContact`, req.profile);

@@ -7,6 +7,8 @@ const Schema = mongoose.Schema;
 const requestSchema = new Schema({
   from: {type: String, required: true},
   to: {type: String, required: true},
+  toID: {type: Schema.Types.ObjectId, required: true, ref: 'profile'},
+  fromID: {type: Schema.Types.ObjectId, required: true, ref: 'profile'},
   status: {type: String, required: true, default: 'pending'},
   dateSent: {type: Date, default: Date.now}
 });
