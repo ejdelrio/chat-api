@@ -79,10 +79,13 @@ module.exports = socketio => {
       let {nodes} = hub;
 
       return Promise.all([
-
+        ...nodes.map(node => {
+          node.messages.push(newMessage._id);
+          if(node.profileID !== req.profile._id) node.unread += 1;
+          return node.save().populate('messages');
+        })
       ]);
     })
-
 
 
     .then(nodes => {
