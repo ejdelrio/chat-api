@@ -12,14 +12,16 @@ const convoHubSchema = new Schema({
 
 const convoHub = module.exports = mongoose.model('convHub', convoHubSchema);
 
-convoHubSchema.prototype.updateChildren = function(profile, nodesArray) {
-  return Promise.all([
+convoHub.prototype.updateChildren = function(profile, nodesArray, message) {
+  return Promise.all(
 
-    ...nodes.map(node => {
-      node.messages.push(newMessage._id);
+    nodesArray.map(node => {
+
+      node.messages.push(message._id);
       if(node.profileID !== profile._id) node.unread += 1;
+
       return node.save().populate('messages');
     })
 
-  ]);
+  );
 };

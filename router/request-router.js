@@ -142,5 +142,34 @@ module.exports = socketio => {
     .catch(err => next(createError(400, err)));
   });
 
+  requestRouter.delete('/api/deleterequest', jsonParser, bearerAuth, function(req, res, next) {
+    debug('DELETE /api/deleterequest');
+
+    let {from, to, _id, status} = req.body;
+    let fromQuery = `request.sent.${status}`;
+    let toQuery = `request.received.${status}`;
+
+    Promise.all([
+      Request.findByIdAndRemove(_id),
+
+      Profile.findOneAndUpdate(
+        {userName: from},
+        {$pull: {[fromQuery]: _id}},
+        {new: true}
+      ),
+
+      Profile.findOneAndUpdate(
+        {userName: to},
+        {$pull: {[toQuery]: _id}},
+        {new: true}
+      )
+    ])
+    .then(() => {
+      socketio.sockets.emit(`${req.body._id}-deleteRequest`, req.body)
+      res.json(req.body);
+    })
+    .catch(err => next(createError(400, err)));
+  });
+
   return requestRouter;
 };

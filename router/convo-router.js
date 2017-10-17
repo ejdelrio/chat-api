@@ -8,7 +8,7 @@ const debug = require('debug')(`${process.env.APP_NAME}: Convo Router`);
 const ConvoNode = require('../model/convo-node.js');
 const ConvoHub = require('../model/convo-hub.js');
 const Message = require('../model/message.js');
-const Profile = require('./model/profile.js');
+const Profile = require('../model/profile.js');
 
 const bearerAuth = require('../lib/bearer.js');
 const profileFetch = require('../lib/profile-fetch.js');
@@ -46,7 +46,7 @@ module.exports = socketio => {
     Promise.all([
       newMessage.save(),
       newHub.save(),
-      ...nodeArray.map(node => node.save().populate('messages')),
+      Promise.all(nodeArray.map(node => node.save().populate('messages'))),
       ...nodeArray.map(node => Profile.findOneAndUpdate(node.profileID, {$push: {'convos': node._id}}))
     ])
 
@@ -76,11 +76,11 @@ module.exports = socketio => {
 
     .then(hub => {
       let {nodes} = hub;
-      return hub.updateChildren(req.profile, nodes);
+      return hub.updateChildren(req.profile, nodes, newMessage);
     })
 
-    .then(nodes => {
-      nodes.forEach(node => {
+    .then(updatedNodes => {
+      updatedNodes.forEach(node => {
         socketio.sockets.emit(`${node._id}-nodeUpdate`, node);
       });
     })
