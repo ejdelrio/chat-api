@@ -7,7 +7,7 @@ const Schema = mongoose.Schema;
 const messageSchema = new Schema({
   sender: {type: String, required: true},
   senderID: {type: Schema.Types.ObjectId, required: true, ref: 'profile'},
-  content: {Type: String, required: true},
+  content: {type: String, required: true},
   dateSent: {type: Date, default: Date.now},
   seenBy: [{type: Schema.Types.ObjectId, ref: 'profile'}],
   convoHubID: {type: Schema.Types.ObjectId, ref: 'convoHub', required: true}

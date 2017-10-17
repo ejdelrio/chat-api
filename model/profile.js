@@ -20,7 +20,8 @@ const profileSchema = new Schema({
 
     }
   },
-  contacts: [{type: Schema.Types.ObjectId, ref: 'profile'}]
+  contacts: [{type: Schema.Types.ObjectId, ref: 'profile'}],
+  convos: [{type: Schema.Types.ObjectId, ref: 'convoNode'}]
 });
 
 const Profile = module.exports = mongoose.model('profile', profileSchema);

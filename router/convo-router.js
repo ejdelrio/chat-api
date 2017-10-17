@@ -72,21 +72,12 @@ module.exports = socketio => {
         {$push: {'messages': newMessage._id}}
       )
       .populate('nodes');
-
     })
 
     .then(hub => {
       let {nodes} = hub;
-
-      return Promise.all([
-        ...nodes.map(node => {
-          node.messages.push(newMessage._id);
-          if(node.profileID !== req.profile._id) node.unread += 1;
-          return node.save().populate('messages');
-        })
-      ]);
+      return hub.updateChildren(req.profile, nodes);
     })
-
 
     .then(nodes => {
       nodes.forEach(node => {

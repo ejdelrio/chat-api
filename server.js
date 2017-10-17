@@ -17,6 +17,7 @@ const socketRouter = require('./router/socket-router');
 const userRouter = require('./router/user-router.js');
 const profileRouter = require('./router/profile-router.js');
 const requestRouter = require('./router/request-router.js');
+const convoRouter = require('./router/convo-router.js');
 
 
 mongoose.connect(process.env.MONGODB_URI);
@@ -28,6 +29,7 @@ app.use(cors());
 app.use(userRouter);
 app.use(profileRouter);
 app.use(requestRouter(webSocket));
+app.use(convoRouter(webSocket));
 app.use(errorMiddleware);
 
 server.listen(PORT, () => {
