@@ -70,6 +70,7 @@ module.exports = socketio => {
       nodeArray.forEach(node => {
         socketio.sockets.emit(`${node.profileID}-newNode`, node);
       });
+      res.json({});
     })
 
     .catch(err => next(createError(400, err)));
@@ -106,8 +107,22 @@ module.exports = socketio => {
       updatedNodes.forEach(node => {
         socketio.sockets.emit(`${node._id}-nodeUpdate`, node);
       });
+      res.json({});
     })
     .catch(err => next(createError(400, err)));
+  });
+
+  convoRouter.put('/api/read-convo/:id', bearerAuth, function(req, res, next) {
+    debug('PUT /api/read-convo');
+
+    ConvoNode.findByIdAndUpdate(req.params.id, {unread: 0}, {new: true})
+    .populate('messages')
+    .populate('members')
+    .then(node => {
+      res.json(node);
+    })
+    .catch(err => next(createError(400, err)));
+
   });
 
   return convoRouter;

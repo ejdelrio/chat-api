@@ -21,7 +21,7 @@ convoHub.prototype.updateChildren = function(profile, nodesArray, message) {
     nodesArray.map(node => {
       node.messages.push(message._id);
 
-      if(node.profileID.toString() !== profile._id.toString()) node.unread += 1;ß;
+      if(node.profileID.toString() !== profile._id.toString()) node.unread += 1;
       return node.save();
     })
   )
