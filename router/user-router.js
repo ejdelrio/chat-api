@@ -49,5 +49,5 @@ userRouter.get('/api/login', basicAuth, function(req, res, next) {
   .then(user => user.comparePassWord(passWord))
   .then(user => user.signToken())
   .then(token => res.json(token))
-  .catch(err => next(createError(401, err.message)));
+  .catch(err => next(createError(401, 'Incorrect username or password')));
 });

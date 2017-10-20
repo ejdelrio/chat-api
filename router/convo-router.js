@@ -17,41 +17,49 @@ module.exports = socketio => {
 
   const convoRouter = new Router();
 
-  convoRouter.post('/api/new-conversation',jsonParser, bearerAuth, profileFetch, function(req, res, next) {
+  convoRouter.post('/api/new-conversation',jsonParser, bearerAuth, function(req, res, next) {
     debug('POST /conversation/api');
 
-    let {members, message} = req.body;
 
-    let newMessage = new Message(message);
+
+    let newMessage = new Message(req.body);
 
     let newHub = new ConvoHub({
-      members: members.map(val => val._id),
+      members: req.body.members.map(val => val._id),
       messages: [newMessage._id]
-    })
+    });
 
     newMessage.convoHubID = newHub._id;
 
-    let nodeArray = members.map(val => {
-      let unread = newMessage.sender === req.user.userName ? 0 : 1;
+    let nodeArray = req.body.members.map(val => {
+
+      let unread = val.userName === req.user.userName ? 0 : 1;
+
       return new ConvoNode({
         profileID: val._id,
         messages: [newMessage._id],
         convoHubID: newHub._id,
+        members: newHub.members,
         unread
       })
     });
+
     
     
 
     Promise.all([
       newMessage.save(),
       newHub.save(),
-      Promise.all(nodeArray.map(node => node.save().populate('messages'))),
-      ...nodeArray.map(node => Profile.findOneAndUpdate(node.profileID, {$push: {'convos': node._id}}))
+      Promise.all(nodeArray.map(node => node.save())),
+      ...nodeArray.map(savedNode => Profile.findByIdAndUpdate(savedNode.profileID, {$push: {'convos': savedNode._id}}, {new: true})),
     ])
 
     .then(results => {
-      results[2].forEach(node => {
+      return Promise.all(results[2].map(node => ConvoNode.populate(node, {path: 'messages'})));
+    })
+
+    .then(nodeArray => {
+      nodeArray.forEach(node => {
         socketio.sockets.emit(`${node.profileID}-newNode`, node);
       });
     })
@@ -71,8 +79,9 @@ module.exports = socketio => {
         newMessage.convoHubID,
         {$push: {'messages': newMessage._id}}
       )
-      .populate('nodes');
     })
+
+    .then(hub => ConvoHub.populate(hub, {path: 'nodes'}))
 
     .then(hub => {
       let {nodes} = hub;

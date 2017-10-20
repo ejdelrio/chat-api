@@ -8,7 +8,8 @@ const convoNodeSchema = new Schema(({
   profileID: {type: Schema.Types.ObjectId, ref: 'profile', required: true},
   messages: [{type: Schema.Types.ObjectId, ref: 'message'}],
   convoHubID: {type: Schema.Types.ObjectId, ref: 'convoHub', required: true},
-  unread: {type: Number, default: 0}
+  unread: {type: Number, default: 0},
+  members: [{type: Schema.Types.ObjectId, ref: 'profile'}]
 }));
 
 const convoNode = module.exports = mongoose.model('convoNode', convoNodeSchema);

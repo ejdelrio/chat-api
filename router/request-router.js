@@ -133,8 +133,8 @@ module.exports = socketio => {
 
     .then(profile => {
 
-      socketio.sockets.emit(`${updatedRequest.to}-newContact`, profile);
-      socketio.sockets.emit(`${updatedRequest.from}-newContact`, myProfile);
+      socketio.sockets.emit(`${updatedRequest.to}-newContact`, myProfile);
+      socketio.sockets.emit(`${updatedRequest.from}-newContact`, profile);
       socketio.sockets.emit(`${updatedRequest._id}-updateRequest`, updatedRequest);
       res.json(updatedRequest);
 

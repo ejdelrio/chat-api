@@ -7,16 +7,40 @@ const createError = require('http-errors');
 
 const Profile = require('../model/profile.js');
 const bearerAuth = require('../lib/bearer.js');
-const profileFetch = require('../lib/profile-fetch.js')
+const ConvoNode = require('../model/convo-node.js');
 
 const profileRouter = module.exports = new Router();
 
-profileRouter.get('/api/profile', bearerAuth, profileFetch, function(req, res, next) {
+profileRouter.get('/api/profile', bearerAuth, function(req, res, next) {
   debug('GET /api/profile');
-  console.log(req.profile);
 
-  res.json(req.profile);
-  next();
+  let profileReq;
+
+  Profile.findOne({userName: req.user.userName})
+  .populate('contacts')
+  .populate('requests.sent.accepted')
+  .populate('requests.sent.rejected')
+  .populate('requests.sent.pending')
+  .populate('requests.received.accepted')
+  .populate('requests.received.rejected')
+  .populate('requests.received.pending')
+
+  .then(profile => {
+    profileReq = profile;
+    return Promise.all(profile.convos.map(node => {
+      return ConvoNode.findById(node)
+      .populate('messages')
+      .populate('members')
+    }))
+  })
+
+  .then(nodeArray => {
+    console.log(nodeArray);
+    profileReq.convos = nodeArray;
+    res.json(profileReq);
+  })
+
+  .catch((err => next(createError(404, err))));
 });
 
 profileRouter.get('/api/profile-query/:userName', bearerAuth, function(req, res, next) {
