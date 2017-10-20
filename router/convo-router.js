@@ -43,6 +43,7 @@ module.exports = socketio => {
         unread
       })
     });
+    newHub.nodes = nodeArray.map(node => node._id);
 
     
     
@@ -51,7 +52,14 @@ module.exports = socketio => {
       newMessage.save(),
       newHub.save(),
       Promise.all(nodeArray.map(node => node.save())),
-      ...nodeArray.map(savedNode => Profile.findByIdAndUpdate(savedNode.profileID, {$push: {'convos': savedNode._id}}, {new: true})),
+
+      ...nodeArray.map(savedNode =>
+        Profile.findByIdAndUpdate(
+          savedNode.profileID,
+          {$push: {'convos': savedNode._id}},
+          {new: true}
+        )
+      ),
     ])
 
     .then(results => {
@@ -68,16 +76,21 @@ module.exports = socketio => {
   });
 
 
-  convoRouter.post('/api/new-message/', jsonParser, bearerAuth, profileFetch, function(req, res, next) {
+  convoRouter.post('/api/new-message/', jsonParser, bearerAuth, function(req, res, next) {
     debug('POST /api/new-message');
 
     let newMessage = new Message(req.body);
+    var userProfile;
 
-    newMessage.save()
+    Profile.findOne({userName: req.user.userName})
+    .then(profile => userProfile = profile)
+
+    .then(() => newMessage.save())
     .then(() => {
       return ConvoHub.findByIdAndUpdate(
         newMessage.convoHubID,
-        {$push: {'messages': newMessage._id}}
+        {$push: {'messages': newMessage._id}},
+        {new: true}
       )
     })
 
@@ -85,7 +98,8 @@ module.exports = socketio => {
 
     .then(hub => {
       let {nodes} = hub;
-      return hub.updateChildren(req.profile, nodes, newMessage);
+
+      return hub.updateChildren(userProfile, nodes, newMessage);
     })
 
     .then(updatedNodes => {
