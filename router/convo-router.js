@@ -88,18 +88,12 @@ module.exports = socketio => {
 
     .then(() => newMessage.save())
     .then(() => {
-      return ConvoHub.findByIdAndUpdate(
-        newMessage.convoHubID,
-        {$push: {'messages': newMessage._id}},
-        {new: true}
-      )
+      return ConvoHub.findById(newMessage.convoHubID)
+      .populate('nodes');
     })
-
-    .then(hub => ConvoHub.populate(hub, {path: 'nodes'}))
 
     .then(hub => {
       let {nodes} = hub;
-
       return hub.updateChildren(userProfile, nodes, newMessage);
     })
 
@@ -107,10 +101,12 @@ module.exports = socketio => {
       updatedNodes.forEach(node => {
         socketio.sockets.emit(`${node._id}-nodeUpdate`, node);
       });
+      socketio.sockets.emit(`${newMessage.convoHubID}-hubUpdate`);
       res.json({});
     })
     .catch(err => next(createError(400, err)));
   });
+
 
   convoRouter.put('/api/read-convo/:id', bearerAuth, function(req, res, next) {
     debug('PUT /api/read-convo');
@@ -124,6 +120,7 @@ module.exports = socketio => {
     .catch(err => next(createError(400, err)));
 
   });
+
 
   return convoRouter;
 };

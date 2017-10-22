@@ -29,8 +29,10 @@ profileRouter.get('/api/profile', bearerAuth, function(req, res, next) {
     profileReq = profile;
     return Promise.all(profile.convos.map(node => {
       return ConvoNode.findById(node)
-      .populate('messages')
       .populate('members')
+      .populate({
+        path: 'messages',
+      })
     }))
   })
 
