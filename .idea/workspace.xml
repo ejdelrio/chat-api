@@ -3,9 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="50eb5cf0-52c0-4ad4-96d7-6fb41aa47472" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/router/convo-router.js" afterPath="$PROJECT_DIR$/router/convo-router.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/router/profile-router.js" afterPath="$PROJECT_DIR$/router/profile-router.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/router/socket-router.js" afterPath="$PROJECT_DIR$/router/socket-router.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/router/user-router.js" afterPath="$PROJECT_DIR$/router/user-router.js" />
     </list>
     <ignored path="$PROJECT_DIR$/.tmp/" />
     <ignored path="$PROJECT_DIR$/temp/" />
@@ -46,14 +44,14 @@
       <file leaf-file-name="profile-router.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/router/profile-router.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="188">
+            <state relative-caret-position="-130">
               <caret line="33" column="25" lean-forward="false" selection-start-line="33" selection-start-column="25" selection-end-line="33" selection-end-column="25" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name=".env" pinned="false" current-in-tab="true">
+      <file leaf-file-name=".env" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/.env">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="0">
@@ -83,11 +81,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="user-router.js" pinned="false" current-in-tab="false">
+      <file leaf-file-name="user-router.js" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/router/user-router.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="867">
-              <caret line="51" column="69" lean-forward="false" selection-start-line="51" selection-start-column="69" selection-end-line="51" selection-end-column="69" />
+            <state relative-caret-position="373">
+              <caret line="33" column="31" lean-forward="false" selection-start-line="33" selection-start-column="31" selection-end-line="33" selection-end-column="31" />
               <folding />
             </state>
           </provider>
@@ -147,13 +145,13 @@
         <option value="$PROJECT_DIR$/model/message.js" />
         <option value="$PROJECT_DIR$/model/profile.js" />
         <option value="$PROJECT_DIR$/router/request-router.js" />
-        <option value="$PROJECT_DIR$/router/user-router.js" />
         <option value="$PROJECT_DIR$/lib/profile-fetch.js" />
         <option value="$PROJECT_DIR$/model/convo-node.js" />
         <option value="$PROJECT_DIR$/model/convo-hub.js" />
         <option value="$PROJECT_DIR$/router/convo-router.js" />
         <option value="$PROJECT_DIR$/router/socket-router.js" />
         <option value="$PROJECT_DIR$/router/profile-router.js" />
+        <option value="$PROJECT_DIR$/router/user-router.js" />
       </list>
     </option>
   </component>
@@ -299,15 +297,16 @@
       <updated>1508090555375</updated>
       <workItem from="1508090556595" duration="34779000" />
       <workItem from="1508376583181" duration="20703000" />
-      <workItem from="1508610212536" duration="10055000" />
+      <workItem from="1508610212536" duration="10392000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="65537000" />
+    <option name="totallyTimeSpent" value="65874000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="0" width="1280" height="800" extended-state="6" />
+    <editor active="true" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.16123907" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
@@ -583,14 +582,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/router/user-router.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="867">
-          <caret line="51" column="69" lean-forward="false" selection-start-line="51" selection-start-column="69" selection-end-line="51" selection-end-column="69" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/model/convo-node.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="187">
@@ -655,18 +646,26 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/.env">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/router/profile-router.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="188">
+        <state relative-caret-position="-130">
           <caret line="33" column="25" lean-forward="false" selection-start-line="33" selection-start-column="25" selection-end-line="33" selection-end-column="25" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/.env">
+    <entry file="file://$PROJECT_DIR$/router/user-router.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        <state relative-caret-position="373">
+          <caret line="33" column="31" lean-forward="false" selection-start-line="33" selection-start-column="31" selection-end-line="33" selection-end-column="31" />
           <folding />
         </state>
       </provider>
