@@ -39,7 +39,7 @@ module.exports = socketio => {
         profileID: val._id,
         messages: [newMessage._id],
         convoHubID: newHub._id,
-        members: newHub.members,
+        members: req.body.members,
         unread
       })
     });
