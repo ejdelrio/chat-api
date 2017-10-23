@@ -15,46 +15,43 @@ const profileFetch = require('../lib/profile-fetch.js');
 
 module.exports = socketio => {
 
-  const convoRouter = new Router();
+  const convoRouter = new Router ();
 
-  convoRouter.post('/api/new-conversation',jsonParser, bearerAuth, function(req, res, next) {
-    debug('POST /conversation/api');
+  convoRouter.post ('/api/new-conversation', jsonParser, bearerAuth, function (req, res, next) {
+    debug ('POST /conversation/api');
 
 
+    let newMessage = new Message (req.body);
 
-    let newMessage = new Message(req.body);
-
-    let newHub = new ConvoHub({
-
+    let newHub = new ConvoHub ({
+      members: req.body.members.map (val => val._id),
       messages: [newMessage._id]
     });
 
     newMessage.convoHubID = newHub._id;
 
-    let nodeArray = req.body.members.map(val => {
+    let nodeArray = req.body.members.map (val => {
 
       let unread = val.userName === req.user.userName ? 0 : 1;
 
-      return new ConvoNode({
+      return new ConvoNode ({
         profileID: val._id,
         messages: [newMessage._id],
         convoHubID: newHub._id,
-        members: req.body.members.map(val => val._id),
+        members: newHub.members,
         unread
       })
     });
-    newHub.nodes = nodeArray.map(node => node._id);
+    newHub.nodes = nodeArray.map (node => node._id);
 
-    
-    
 
-    Promise.all([
-      newMessage.save(),
-      newHub.save(),
-      Promise.all(nodeArray.map(node => node.save())),
+    Promise.all ([
+      newMessage.save (),
+      newHub.save (),
+      Promise.all (nodeArray.map (node => node.save ())),
 
-      ...nodeArray.map(savedNode =>
-        Profile.findByIdAndUpdate(
+      ...nodeArray.map (savedNode =>
+        Profile.findByIdAndUpdate (
           savedNode.profileID,
           {$push: {'convos': savedNode._id}},
           {new: true}
@@ -62,65 +59,68 @@ module.exports = socketio => {
       ),
     ])
 
-    .then(results => {
-      return Promise.all(results[2].map(node => ConvoNode.populate(node, {path: 'messages'})));
+    .then (results => {
+      return Promise.all (results[2].map (node => ConvoNode.populate (node, {path: 'messages'})));
     })
 
-    .then(nodeArray => {
-      nodeArray.forEach(node => {
-        socketio.sockets.emit(`${node.profileID}-newNode`, node);
+    .then (nodeArray => {
+      nodeArray.forEach (node => {
+        socketio.sockets.emit (`${node.profileID}-newNode`, node);
       });
-      res.json({});
+      res.json ({});
     })
 
-    .catch(err => next(createError(400, err)));
+    .catch (err => next (createError (400, err)));
   });
 
 
-  convoRouter.post('/api/new-message/', jsonParser, bearerAuth, function(req, res, next) {
-    debug('POST /api/new-message');
+  convoRouter.post ('/api/new-message/', jsonParser, bearerAuth, function (req, res, next) {
+    debug ('POST /api/new-message');
 
-    let newMessage = new Message(req.body);
+    let newMessage = new Message (req.body);
     var userProfile;
 
-    Profile.findOne({userName: req.user.userName})
-    .then(profile => userProfile = profile)
+    Profile.findOne ({userName: req.user.userName})
+    .then (profile => userProfile = profile)
 
-    .then(() => newMessage.save())
-    .then(() => {
-      return ConvoHub.findById(newMessage.convoHubID)
-      .populate('nodes');
+    .then (() => newMessage.save ())
+    .then (() => {
+      return ConvoHub.findByIdAndUpdate (
+        newMessage.convoHubID,
+        {$push: {'messages': newMessage._id}},
+        {new: true}
+      )
     })
 
-    .then(hub => {
+    .then (hub => ConvoHub.populate (hub, {path: 'nodes'}))
+
+    .then (hub => {
       let {nodes} = hub;
-      return hub.updateChildren(userProfile, nodes, newMessage);
+
+      return hub.updateChildren (userProfile, nodes, newMessage);
     })
 
-    .then(updatedNodes => {
-      updatedNodes.forEach(node => {
-        socketio.sockets.emit(`${node._id}-nodeUpdate`, node);
+    .then (updatedNodes => {
+      updatedNodes.forEach (node => {
+        socketio.sockets.emit (`${node._id}-nodeUpdate`, node);
       });
-      socketio.sockets.emit(`${newMessage.convoHubID}-hubUpdate`);
-      res.json({});
+      res.json ({});
     })
-    .catch(err => next(createError(400, err)));
+    .catch (err => next (createError (400, err)));
   });
 
+  convoRouter.put ('/api/read-convo/:id', bearerAuth, function (req, res, next) {
+    debug ('PUT /api/read-convo');
 
-  convoRouter.put('/api/read-convo/:id', bearerAuth, function(req, res, next) {
-    debug('PUT /api/read-convo');
-
-    ConvoNode.findByIdAndUpdate(req.params.id, {unread: 0}, {new: true})
-    .populate('messages')
-    .populate('members')
-    .then(node => {
-      res.json(node);
+    ConvoNode.findByIdAndUpdate (req.params.id, {unread: 0}, {new: true})
+    .populate ('messages')
+    .populate ('members')
+    .then (node => {
+      res.json (node);
     })
-    .catch(err => next(createError(400, err)));
+    .catch (err => next (createError (400, err)));
 
   });
-
 
   return convoRouter;
 };
