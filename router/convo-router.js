@@ -25,7 +25,7 @@ module.exports = socketio => {
     let newMessage = new Message(req.body);
 
     let newHub = new ConvoHub({
-      members: req.body.members.map(val => val._id),
+
       messages: [newMessage._id]
     });
 
@@ -39,7 +39,7 @@ module.exports = socketio => {
         profileID: val._id,
         messages: [newMessage._id],
         convoHubID: newHub._id,
-        members: req.body.members,
+        members: req.body.members.map(val => val._id),
         unread
       })
     });
