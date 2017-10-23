@@ -2,6 +2,11 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="50eb5cf0-52c0-4ad4-96d7-6fb41aa47472" name="Default" comment="">
+<<<<<<< HEAD
+=======
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/model/convo-hub.js" afterPath="$PROJECT_DIR$/model/convo-hub.js" />
+>>>>>>> parent of 50675b6... Wrote endpoint to mark messages as read
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/router/convo-router.js" afterPath="$PROJECT_DIR$/router/convo-router.js" />
     </list>
     <ignored path="$PROJECT_DIR$/.tmp/" />
@@ -52,6 +57,33 @@
           </provider>
         </entry>
       </file>
+<<<<<<< HEAD
+=======
+      <file leaf-file-name="convo-router.js" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/router/convo-router.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="164">
+              <caret line="119" column="24" lean-forward="false" selection-start-line="119" selection-start-column="24" selection-end-line="119" selection-end-column="24" />
+              <folding>
+                <element signature="e#810#903#0" expanded="true" />
+                <element signature="e#1090#1243#0" expanded="true" />
+                <element signature="e#1333#1631#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="server.js" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/server.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="527">
+              <caret line="31" column="32" lean-forward="false" selection-start-line="31" selection-start-column="32" selection-end-line="31" selection-end-column="32" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+>>>>>>> parent of 50675b6... Wrote endpoint to mark messages as read
     </leaf>
   </component>
   <component name="FindInProjectRecents">
@@ -224,14 +256,22 @@
       <option name="presentableId" value="Default" />
       <updated>1508090555375</updated>
       <workItem from="1508090556595" duration="34779000" />
+<<<<<<< HEAD
       <workItem from="1508376583181" duration="20703000" />
       <workItem from="1508610212536" duration="12891000" />
       <workItem from="1508714033959" duration="5166000" />
+=======
+      <workItem from="1508376583181" duration="19409000" />
+>>>>>>> parent of 50675b6... Wrote endpoint to mark messages as read
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
+<<<<<<< HEAD
     <option name="totallyTimeSpent" value="73539000" />
+=======
+    <option name="totallyTimeSpent" value="54188000" />
+>>>>>>> parent of 50675b6... Wrote endpoint to mark messages as read
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="0" width="1280" height="800" extended-state="6" />
@@ -611,8 +651,13 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/router/convo-router.js">
       <provider selected="true" editor-type-id="text-editor">
+<<<<<<< HEAD
         <state relative-caret-position="271">
           <caret line="125" column="2" lean-forward="false" selection-start-line="125" selection-start-column="2" selection-end-line="125" selection-end-column="2" />
+=======
+        <state relative-caret-position="164">
+          <caret line="119" column="24" lean-forward="false" selection-start-line="119" selection-start-column="24" selection-end-line="119" selection-end-column="24" />
+>>>>>>> parent of 50675b6... Wrote endpoint to mark messages as read
           <folding>
             <element signature="e#816#910#0" expanded="true" />
             <element signature="e#1099#1252#0" expanded="true" />
