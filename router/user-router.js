@@ -21,16 +21,17 @@ userRouter.post('/api/signup', jsonParser, function(req, res, next) {
   let passWord = req.body.passWord;
   delete req.body.passWord;
 
+  let newToken;
   let newUser = new User(req.body);
   let newProfile = new Profile(req.body);
   newProfile.userID = newUser._id;
 
   newProfile.save()
-  .then(() => newUser.encryptPassWord(passWord))
+  newUser.encryptPassWord(passWord)
   .then(user => user.signToken())
-  .then(token => {
-    res.json(token);
-  })
+  .then(token => newToken = token)
+  .then(() => newProfile.save())
+  .then(() => res.json(newToken))
   .catch(err => {
     let mongoError = err.message.split(':')[0];
     if(mongoError === 'E11000 duplicate key error collection') err.message = 'Username or email already in use';
