@@ -6,8 +6,6 @@ const Schema = mongoose.Schema;
 const ConvoNode = require('./convo-node.js');
 
 const convoHubSchema = new Schema({
-  messages: [{type: Schema.Types.ObjectId, ref: 'message'}],
-  members: [{type: Schema.Types.ObjectId, ref: 'profile'}],
   nodes: [{type: Schema.Types. ObjectId, ref: 'convoNode'}]
 });
 
