@@ -24,10 +24,7 @@ module.exports = socketio => {
 
     let newMessage = new Message(req.body);
 
-    let newHub = new ConvoHub({
-      members: req.body.members.map(val => val._id),
-      messages: [newMessage._id]
-    });
+    let newHub = new ConvoHub();
 
     newMessage.convoHubID = newHub._id;
 
@@ -39,7 +36,7 @@ module.exports = socketio => {
         profileID: val._id,
         messages: [newMessage._id],
         convoHubID: newHub._id,
-        members: newHub.members,
+        members: req.body.members.map(val => val._id),
         unread
       })
     });
@@ -63,7 +60,7 @@ module.exports = socketio => {
     ])
 
     .then(results => {
-      return Promise.all(results[2].map(node => ConvoNode.populate(node, {path: 'messages'})));
+      return Promise.all(results[2].map(node => ConvoNode.populate(node, [{path: 'messages'}, {path: 'members'}])));
     })
 
     .then(nodeArray => {
@@ -87,20 +84,25 @@ module.exports = socketio => {
     .then(profile => userProfile = profile)
 
     .then(() => newMessage.save())
-    .then(() => {
-      return ConvoHub.findByIdAndUpdate(
-        newMessage.convoHubID,
-        {$push: {'messages': newMessage._id}},
-        {new: true}
+    .then(message => ConvoNode.find({convoHubID: message.convoHubID}))
+
+    .then(nodes => {
+      return Promise.all(
+        nodes.map(node => {
+          node.messages.push(newMessage._id);
+          node.unread = node.profileID.toString() === userProfile._id.toString() ?
+          0 : 1;
+          return node.save();
+        })
       )
     })
 
-    .then(hub => ConvoHub.populate(hub, {path: 'nodes'}))
-
-    .then(hub => {
-      let {nodes} = hub;
-
-      return hub.updateChildren(userProfile, nodes, newMessage);
+    .then(nodes => {
+      return Promise.all(
+        nodes.map(node => {
+          return ConvoNode.populate(node, [{path: 'messages'}, {path: 'members'}])
+        })
+      )
     })
 
     .then(updatedNodes => {
