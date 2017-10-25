@@ -43,9 +43,8 @@ module.exports = socketio => {
       return node._id;
     });
 
-
     Promise.all ([
-      newMessage.save (),
+      newMessage.save(),
       newHub.save (),
       Promise.all (nodeArray.map (node => node.save ())),
 
@@ -57,15 +56,16 @@ module.exports = socketio => {
         )
       ),
     ])
-
+    //
 
     .then(results => {
       return Promise.all(results[2].map(node => ConvoNode.populate(node, [{path: 'messages'}, {path: 'members'}])));
     })
-
+    //
     .then (nodeArray => {
 
       nodeArray.forEach (node => {
+        console.log(node);
         socketio.sockets.emit (`${node.profileID}-newNode`, node);
       });
       res.json (myNode);
