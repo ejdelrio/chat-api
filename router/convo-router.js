@@ -11,21 +11,18 @@ const Message = require('../model/message.js');
 const Profile = require('../model/profile.js');
 
 const bearerAuth = require('../lib/bearer.js');
-const profileFetch = require('../lib/profile-fetch.js');
+const profileFetch = require('../lib/profile-fetch');
 
 module.exports = socketio => {
 
   const convoRouter = new Router ();
 
-  convoRouter.post ('/api/new-conversation', jsonParser, bearerAuth, function (req, res, next) {
+  convoRouter.post ('/api/new-conversation', jsonParser, bearerAuth, profileFetch, function (req, res, next) {
     debug ('POST /conversation/api');
-
-
-    let newMessage = new Message (req.body);
-
 
     let newMessage = new Message(req.body);
     let newHub = new ConvoHub();
+    let myNode;
 
     newMessage.convoHubID = newHub._id;
 
@@ -41,7 +38,10 @@ module.exports = socketio => {
         unread
       })
     });
-    newHub.nodes = nodeArray.map (node => node._id);
+    newHub.nodes = nodeArray.map (node => {
+      if (node.profileID.toString() === req.profile._id.toString()) myNode = node;
+      return node._id;
+    });
 
 
     Promise.all ([
@@ -64,10 +64,11 @@ module.exports = socketio => {
     })
 
     .then (nodeArray => {
+      console.log(nodeArray);
       nodeArray.forEach (node => {
         socketio.sockets.emit (`${node.profileID}-newNode`, node);
       });
-      res.json ({});
+      res.json (myNode);
     })
 
     .catch (err => next (createError (400, err)));
@@ -77,7 +78,7 @@ module.exports = socketio => {
   convoRouter.post ('/api/new-message/', jsonParser, bearerAuth, function (req, res, next) {
     debug ('POST /api/new-message');
 
-    let newMessage = new Message (req.body);
+    let newMessage = new Message(req.body);
     var userProfile;
 
     Profile.findOne ({userName: req.user.userName})

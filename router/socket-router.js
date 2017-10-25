@@ -9,9 +9,11 @@ module.exports = server => {
   websocket.on('connection', (socket) => {
     console.log('__SOCKET_CONNECTION__: ', socket.id);
 
-    socket.on('showTyping', data => {
-      console.log(data)
-      websocket.sockets.emit(`${data.hubID}-showTyping`, data.userName);
+    socket.on('sendTyping', data => {
+      let {convoNode} = data;
+      console.log('Firing emission');
+      console.log(convoNode);
+      if(convoNode) websocket.sockets.emit(`showTyping-${convoNode.convoHubID}`, data);
     })
   });
   return websocket;
