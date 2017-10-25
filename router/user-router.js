@@ -26,7 +26,6 @@ userRouter.post('/api/signup', jsonParser, function(req, res, next) {
   let newProfile = new Profile(req.body);
   newProfile.userID = newUser._id;
 
-  newProfile.save()
   newUser.encryptPassWord(passWord)
   .then(user => user.signToken())
   .then(token => newToken = token)

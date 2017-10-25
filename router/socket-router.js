@@ -11,8 +11,6 @@ module.exports = server => {
 
     socket.on('sendTyping', data => {
       let {convoNode} = data;
-      console.log('Firing emission');
-      console.log(convoNode);
       if(convoNode) websocket.sockets.emit(`showTyping-${convoNode.convoHubID}`, data);
     })
   });

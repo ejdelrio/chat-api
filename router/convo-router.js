@@ -64,7 +64,7 @@ module.exports = socketio => {
     })
 
     .then (nodeArray => {
-      console.log(nodeArray);
+
       nodeArray.forEach (node => {
         socketio.sockets.emit (`${node.profileID}-newNode`, node);
       });
@@ -79,7 +79,7 @@ module.exports = socketio => {
     debug ('POST /api/new-message');
 
     let newMessage = new Message(req.body);
-    var userProfile;
+    let userProfile;
 
     Profile.findOne ({userName: req.user.userName})
     .then (profile => userProfile = profile)
