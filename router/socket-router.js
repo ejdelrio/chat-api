@@ -17,7 +17,6 @@ module.exports = server => {
 
       timer = 3;
 
-
       if(!intervalBoolean) {
 
         intervalBoolean = true;

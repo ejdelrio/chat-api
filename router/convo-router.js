@@ -65,7 +65,6 @@ module.exports = socketio => {
     .then (nodeArray => {
 
       nodeArray.forEach (node => {
-        console.log(node);
         socketio.sockets.emit (`${node.profileID}-newNode`, node);
       });
       res.json (myNode);

@@ -37,7 +37,6 @@ profileRouter.get('/api/profile', bearerAuth, function(req, res, next) {
   })
 
   .then(nodeArray => {
-    console.log(nodeArray);
     profileReq.convos = nodeArray;
     res.json(profileReq);
   })
